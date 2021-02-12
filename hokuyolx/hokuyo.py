@@ -160,7 +160,7 @@ class HokuyoLX(object):
             raise HokuyoException('Failed to send all data to the sensor')
         return req
 
-    def _recv(self, header=None, timeout=3):
+    def _recv(self, header=None, timeout=5):
         '''Recieves data from the sensor and checks recieved data block
         using given header.'''
         # Optionally set a timeout to prevent this function from
