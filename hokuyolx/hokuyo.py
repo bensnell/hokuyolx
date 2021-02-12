@@ -160,14 +160,27 @@ class HokuyoLX(object):
             raise HokuyoException('Failed to send all data to the sensor')
         return req
 
-    def _recv(self, header=None):
+    def _recv(self, header=None, timeout=3):
         '''Recieves data from the sensor and checks recieved data block
         using given header.'''
+        # Optionally set a timeout to prevent this function from
+        # hanging indefinitely, for example, if one is trying to put
+        # the device in sleep mode after calling iter_dist(scans=0).
+        # Timeout of None = no timeout
         self._logger.debug('Recieving data from sensor')
+        start_time = time.time()
+        split_data = [""]
         if self._sock is None:
             raise HokuyoException('Not connected to the laser')
         try:
             while True:
+                # Check if timeout has elapsed
+                if type(timeout) is not type(None) and \
+                    time.time() - start_time > timeout:
+                    self.logger.warning("Exiting from _recv() because \
+                        it hung indefinitely.")
+                    break
+                # Try receiving data
                 data = b''
                 while not data.endswith(b'\n\n'):
                     data += self._sock.recv(self.buf)
